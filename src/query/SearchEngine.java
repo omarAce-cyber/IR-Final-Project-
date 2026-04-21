@@ -83,9 +83,9 @@ public class SearchEngine {
                 candidateDocs = null;
 
                 if (!rankingTerms.isEmpty()) {
-                    String maybeSuggestion = spellingCorrector.suggest(rankingTerms.get(0));
-                    if (maybeSuggestion != null && !maybeSuggestion.equals(rankingTerms.get(0))) {
-                        suggestion = maybeSuggestion;
+                    String suggestedTerm = spellingCorrector.suggest(rankingTerms.get(0));
+                    if (suggestedTerm != null && !suggestedTerm.equals(rankingTerms.get(0))) {
+                        suggestion = suggestedTerm;
                     }
                 }
             }

@@ -53,7 +53,7 @@ public class TFIDFCalculator {
         for (Map.Entry<String, Integer> entry : tfCounts.entrySet()) {
             String term = entry.getKey();
             double tf = 1.0 + Math.log(entry.getValue());
-            queryVector.put(term, tf * idf.getOrDefault(term, 1.0));
+            queryVector.put(term, tf * idf.getOrDefault(term, 0.0));
         }
 
         Map<String, Double> scores = new HashMap<>();

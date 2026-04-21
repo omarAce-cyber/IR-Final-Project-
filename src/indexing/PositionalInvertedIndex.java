@@ -90,7 +90,7 @@ public class PositionalInvertedIndex {
             while (i < positions1.size() && j < positions2.size()) {
                 int p1 = positions1.get(i);
                 int p2 = positions2.get(j);
-                if (Math.abs(p1 - p2) <= maxDistance) {
+                if (calculateWordGap(p1, p2) <= maxDistance) {
                     result.add(docId);
                     break;
                 }
@@ -102,5 +102,9 @@ public class PositionalInvertedIndex {
             }
         }
         return result;
+    }
+
+    private int calculateWordGap(int positionA, int positionB) {
+        return Math.abs(positionA - positionB) - 1;
     }
 }

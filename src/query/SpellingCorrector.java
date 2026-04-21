@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class SpellingCorrector {
+    private static final int MAX_EDIT_DISTANCE_FLOOR = 3;
+
     private final Set<String> vocabulary;
     private final KGramIndex kGramIndex;
 
@@ -31,10 +33,14 @@ public class SpellingCorrector {
             }
         }
 
-        if (best == null || editDistance(term, best) > Math.max(3, term.length() / 2)) {
+        if (best == null || editDistance(term, best) > computeMaxEditDistance(term)) {
             return null;
         }
         return best;
+    }
+
+    private int computeMaxEditDistance(String term) {
+        return Math.max(MAX_EDIT_DISTANCE_FLOOR, term.length() / 2);
     }
 
     private double jaccard(String a, String b) {

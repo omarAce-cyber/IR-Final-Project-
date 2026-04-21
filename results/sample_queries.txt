@@ -1,0 +1,16 @@
+Query: computer
+Did you mean: computers
+No results found.
+
+Query: "machine learning"
+- english/doc1.txt (score=0.5000)
+
+Query: employment /3 place
+- english/doc3.txt (score=0.5000)
+
+Query: comput*
+- english/doc1.txt (score=0.3536)
+
+Query: "الذكاء الاصطناعي"
+- arabic/doc1.txt (score=0.5774)
+

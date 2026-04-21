@@ -10,6 +10,7 @@ import query.SpellingCorrector;
 import ranking.TFIDFCalculator;
 
 import java.io.IOException;
+import java.awt.GraphicsEnvironment;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -19,6 +20,14 @@ import java.util.Map;
 import java.util.Set;
 
 public class Main {
+    private static final List<String> SAMPLE_QUERIES = List.of(
+            "computer",
+            "\"machine learning\"",
+            "employment /3 place",
+            "comput*",
+            "\"الذكاء الاصطناعي\""
+    );
+
     public static void main(String[] args) {
         try {
             Path projectRoot = Path.of("").toAbsolutePath();
@@ -55,12 +64,16 @@ public class Main {
             evaluator.evaluateAndSave(searchEngine, sampleRelevance(), projectRoot.resolve("results/evaluation_results.txt"));
             evaluator.saveSampleQueryOutputs(
                     searchEngine,
-                    List.of("computer", "\"machine learning\"", "employment /3 place", "comput*", "\"الذكاء الاصطناعي\""),
+                    SAMPLE_QUERIES,
                     projectRoot.resolve("results/sample_queries.txt")
             );
 
-            SearchGUI gui = new SearchGUI(searchEngine);
-            gui.launch();
+            if (GraphicsEnvironment.isHeadless()) {
+                System.out.println("Headless environment detected. GUI launch skipped.");
+            } else {
+                SearchGUI gui = new SearchGUI(searchEngine);
+                gui.launch();
+            }
         } catch (Exception e) {
             System.err.println("Failed to start the application: " + e.getMessage());
             e.printStackTrace();
