@@ -1,0 +1,3 @@
+# Java implementation uses standard JDK libraries only.
+# Required runtime/build tool:
+# - JDK 17+
