@@ -1,0 +1,1 @@
+Information retrieval systems index documents and rank results for user queries.
