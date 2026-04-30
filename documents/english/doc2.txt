@@ -1,1 +1,1 @@
-Information retrieval systems index documents and rank results for user queries.
+Information retrieval systems are designed to index, store, and rank documents in response to user queries. These systems use techniques such as TF-IDF and cosine similarity to measure relevance. Web search engines are a common example that retrieves millions of results and ranks them based on computed relevance scores.
