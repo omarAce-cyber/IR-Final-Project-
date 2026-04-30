@@ -1,1 +1,1 @@
-Machine learning helps computers learn from data and improve predictions.
+Machine learning is a branch of artificial intelligence that enables computers to learn from data without being explicitly programmed. It uses statistical algorithms to identify patterns and improve predictions over time. Applications include image recognition, natural language processing, recommendation systems, and fraud detection in modern computing environments.

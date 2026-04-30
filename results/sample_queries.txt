@@ -3,14 +3,15 @@ Did you mean: computers
 No results found.
 
 Query: "machine learning"
-- english/doc1.txt (score=0.5000)
+- english/doc1.txt (score=0.2379)
 
 Query: employment /3 place
-- english/doc3.txt (score=0.5000)
+- english/doc3.txt (score=0.3233)
 
 Query: comput*
-- english/doc1.txt (score=0.3536)
+- english/doc1.txt (score=0.1942)
+- english/doc2.txt (score=0.0952)
 
 Query: "الذكاء الاصطناعي"
-- arabic/doc1.txt (score=0.5774)
+- arabic/doc1.txt (score=0.4139)
 

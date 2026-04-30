@@ -1,4 +1,6 @@
 import evaluation.Evaluator;
+import evaluation.EvaluationService;
+import evaluation.GroundTruth;
 import gui.SearchGUI;
 import indexing.KGramIndex;
 import indexing.PositionalInvertedIndex;
@@ -14,9 +16,7 @@ import java.awt.GraphicsEnvironment;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class Main {
@@ -61,7 +61,8 @@ public class Main {
             );
 
             Evaluator evaluator = new Evaluator();
-            evaluator.evaluateAndSave(searchEngine, sampleRelevance(), projectRoot.resolve("results/evaluation_results.txt"));
+            GroundTruth groundTruth = buildGroundTruth();
+            evaluator.evaluateAndSave(searchEngine, groundTruth.getAllJudgments(), projectRoot.resolve("results/evaluation_results.txt"));
             evaluator.saveSampleQueryOutputs(
                     searchEngine,
                     SAMPLE_QUERIES,
@@ -71,7 +72,8 @@ public class Main {
             if (GraphicsEnvironment.isHeadless()) {
                 System.out.println("Headless environment detected. GUI launch skipped.");
             } else {
-                SearchGUI gui = new SearchGUI(searchEngine);
+                EvaluationService evaluationService = new EvaluationService();
+                SearchGUI gui = new SearchGUI(searchEngine, evaluationService, groundTruth);
                 gui.launch();
             }
         } catch (Exception e) {
@@ -112,12 +114,12 @@ public class Main {
                 });
     }
 
-    private static Map<String, Set<String>> sampleRelevance() {
-        Map<String, Set<String>> relevance = new HashMap<>();
-        relevance.put("machine learning", Set.of("english/doc1.txt"));
-        relevance.put("information retrieval", Set.of("english/doc2.txt", "arabic/doc2.txt"));
-        relevance.put("\"الذكاء الاصطناعي\"", Set.of("arabic/doc1.txt"));
-        relevance.put("employment /3 place", Set.of("english/doc3.txt"));
-        return relevance;
+    private static GroundTruth buildGroundTruth() {
+        GroundTruth gt = new GroundTruth();
+        gt.addRelevantDocs("machine learning",       Set.of("english/doc1.txt"));
+        gt.addRelevantDocs("information retrieval",  Set.of("english/doc2.txt", "arabic/doc2.txt"));
+        gt.addRelevantDocs("الذكاء الاصطناعي",       Set.of("arabic/doc1.txt"));
+        gt.addRelevantDocs("employment",             Set.of("english/doc3.txt"));
+        return gt;
     }
 }
