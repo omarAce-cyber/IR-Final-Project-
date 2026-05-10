@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Evaluator {
     public void evaluateAndSave(
@@ -27,7 +28,9 @@ public class Evaluator {
 
         for (Map.Entry<String, Set<String>> entry : relevanceJudgments.entrySet()) {
             String query = entry.getKey();
-            Set<String> relevant = entry.getValue();
+            Set<String> relevant = entry.getValue().stream()
+                    .map(EvaluationNormalizer::normalizeDocId)
+                    .collect(Collectors.toSet());
 
             long start = System.nanoTime();
             SearchResponse response = engine.search(query);
@@ -35,18 +38,13 @@ public class Evaluator {
 
             Set<String> retrieved = new HashSet<>();
             for (SearchResult result : response.getResults()) {
-                retrieved.add(result.getDocumentId());
+                retrieved.add(EvaluationNormalizer.normalizeDocId(result.getDocumentId()));
             }
 
-            int relevantRetrieved = 0;
-            for (String doc : retrieved) {
-                if (relevant.contains(doc)) {
-                    relevantRetrieved++;
-                }
-            }
+            long relevantRetrieved = EvaluationNormalizer.countRelevantRetrieved(retrieved, relevant);
 
-            double precision = retrieved.isEmpty() ? 0.0 : (double) relevantRetrieved / retrieved.size();
-            double recall = relevant.isEmpty() ? 0.0 : (double) relevantRetrieved / relevant.size();
+            double precision = retrieved.isEmpty() ? 0.0 : (double) relevantRetrieved / (double) retrieved.size();
+            double recall = relevant.isEmpty() ? 0.0 : (double) relevantRetrieved / (double) relevant.size();
 
             precisionSum += precision;
             recallSum += recall;
