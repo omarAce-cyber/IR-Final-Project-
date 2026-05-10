@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Stores the mapping of queries to their known-relevant document IDs.
@@ -21,7 +22,11 @@ public class GroundTruth {
      * @param relevantDocs the document IDs considered relevant for this query
      */
     public void addRelevantDocs(String query, Set<String> relevantDocs) {
-        relevanceMap.put(query, Set.copyOf(relevantDocs));
+        String normalizedQuery = EvaluationNormalizer.normalizeQuery(query);
+        Set<String> normalizedDocs = relevantDocs.stream()
+                .map(EvaluationNormalizer::normalizeDocId)
+                .collect(Collectors.toUnmodifiableSet());
+        relevanceMap.put(normalizedQuery, normalizedDocs);
     }
 
     /**
@@ -29,7 +34,8 @@ public class GroundTruth {
      * empty set if no judgment has been registered for it.
      */
     public Set<String> getRelevantDocs(String query) {
-        return relevanceMap.getOrDefault(query, Set.of());
+        String normalizedQuery = EvaluationNormalizer.normalizeQuery(query);
+        return relevanceMap.getOrDefault(normalizedQuery, Set.of());
     }
 
     /**

@@ -4,6 +4,7 @@ import query.SearchResult;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Stateless service that computes Precision and Recall for a single query.
@@ -28,13 +29,20 @@ public class EvaluationService {
      * @return precision in [0.0, 1.0]; returns 0.0 when no results were retrieved
      */
     public double precision(List<SearchResult> results, Set<String> relevantDocs) {
-        if (results == null || results.isEmpty()) {
+        if (results == null || results.isEmpty() || relevantDocs == null) {
             return 0.0;
         }
-        long relevantRetrieved = results.stream()
-                .filter(r -> relevantDocs.contains(r.getDocumentId()))
-                .count();
-        return (double) relevantRetrieved / results.size();
+
+        Set<String> retrievedDocs = results.stream()
+                .map(SearchResult::getDocumentId)
+                .map(EvaluationNormalizer::normalizeDocId)
+                .collect(Collectors.toSet());
+        Set<String> normalizedRelevant = relevantDocs.stream()
+                .map(EvaluationNormalizer::normalizeDocId)
+                .collect(Collectors.toSet());
+
+        long relevantRetrieved = countRelevantRetrieved(retrievedDocs, normalizedRelevant);
+        return (double) relevantRetrieved / retrievedDocs.size();
     }
 
     /**
@@ -49,9 +57,22 @@ public class EvaluationService {
         if (relevantDocs == null || relevantDocs.isEmpty()) {
             return 0.0;
         }
-        long relevantRetrieved = results.stream()
-                .filter(r -> relevantDocs.contains(r.getDocumentId()))
+        Set<String> retrievedDocs = results.stream()
+                .map(SearchResult::getDocumentId)
+                .map(EvaluationNormalizer::normalizeDocId)
+                .collect(Collectors.toSet());
+        Set<String> normalizedRelevant = relevantDocs.stream()
+                .map(EvaluationNormalizer::normalizeDocId)
+                .collect(Collectors.toSet());
+
+        long relevantRetrieved = countRelevantRetrieved(retrievedDocs, normalizedRelevant);
+        return (double) relevantRetrieved / normalizedRelevant.size();
+    }
+
+    private long countRelevantRetrieved(Set<String> retrievedDocs, Set<String> relevantDocs) {
+        return retrievedDocs.stream()
+                .filter(retrieved -> relevantDocs.stream()
+                        .anyMatch(relevant -> EvaluationNormalizer.documentIdsMatch(retrieved, relevant)))
                 .count();
-        return (double) relevantRetrieved / relevantDocs.size();
     }
 }
