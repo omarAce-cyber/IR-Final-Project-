@@ -1,6 +1,8 @@
 package evaluation;
 
 import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 final class EvaluationNormalizer {
     private EvaluationNormalizer() {
@@ -38,19 +40,46 @@ final class EvaluationNormalizer {
         return normalized.toLowerCase(Locale.ROOT);
     }
 
-    static boolean documentIdsMatch(String leftDocId, String rightDocId) {
-        String left = normalizeDocId(leftDocId);
-        String right = normalizeDocId(rightDocId);
-        if (left.isEmpty() || right.isEmpty()) {
-            return false;
+    /**
+     * Counts how many retrieved documents are relevant.
+     *
+     * <p>Exact normalized ID matching is used first.
+     * If one side is unqualified (filename only), fallback filename matching is
+     * allowed to tolerate ground-truth entries that omit the language/path prefix.</p>
+     */
+    static long countRelevantRetrieved(Set<String> retrievedDocs, Set<String> relevantDocs) {
+        Set<String> normalizedRetrieved = retrievedDocs.stream()
+                .map(EvaluationNormalizer::normalizeDocId)
+                .collect(Collectors.toSet());
+        Set<String> normalizedRelevant = relevantDocs.stream()
+                .map(EvaluationNormalizer::normalizeDocId)
+                .collect(Collectors.toSet());
+
+        Set<String> retrievedFileNames = normalizedRetrieved.stream()
+                .map(EvaluationNormalizer::fileName)
+                .collect(Collectors.toSet());
+        Set<String> unqualifiedRetrievedFileNames = normalizedRetrieved.stream()
+                .filter(id -> !id.contains("/"))
+                .map(EvaluationNormalizer::fileName)
+                .collect(Collectors.toSet());
+
+        long matches = 0L;
+        for (String relevant : normalizedRelevant) {
+            if (normalizedRetrieved.contains(relevant)) {
+                matches++;
+                continue;
+            }
+
+            String relevantFileName = fileName(relevant);
+            if (!relevant.contains("/")) {
+                if (retrievedFileNames.contains(relevantFileName)) {
+                    matches++;
+                }
+            } else if (unqualifiedRetrievedFileNames.contains(relevantFileName)) {
+                matches++;
+            }
         }
-        if (left.equals(right)) {
-            return true;
-        }
-        if (!left.contains("/") || !right.contains("/")) {
-            return fileName(left).equals(fileName(right));
-        }
-        return false;
+        return matches;
     }
 
     private static String fileName(String docId) {

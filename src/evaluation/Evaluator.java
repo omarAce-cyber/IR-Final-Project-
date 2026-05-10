@@ -41,7 +41,7 @@ public class Evaluator {
                 retrieved.add(EvaluationNormalizer.normalizeDocId(result.getDocumentId()));
             }
 
-            long relevantRetrieved = countRelevantRetrieved(retrieved, relevant);
+            long relevantRetrieved = EvaluationNormalizer.countRelevantRetrieved(retrieved, relevant);
 
             double precision = retrieved.isEmpty() ? 0.0 : (double) relevantRetrieved / (double) retrieved.size();
             double recall = relevant.isEmpty() ? 0.0 : (double) relevantRetrieved / (double) relevant.size();
@@ -88,12 +88,5 @@ public class Evaluator {
 
         Files.createDirectories(sampleOutputPath.getParent());
         Files.write(sampleOutputPath, lines);
-    }
-
-    private long countRelevantRetrieved(Set<String> retrievedDocs, Set<String> relevantDocs) {
-        return retrievedDocs.stream()
-                .filter(retrieved -> relevantDocs.stream()
-                        .anyMatch(relevant -> EvaluationNormalizer.documentIdsMatch(retrieved, relevant)))
-                .count();
     }
 }

@@ -37,11 +37,7 @@ public class EvaluationService {
                 .map(SearchResult::getDocumentId)
                 .map(EvaluationNormalizer::normalizeDocId)
                 .collect(Collectors.toSet());
-        Set<String> normalizedRelevant = relevantDocs.stream()
-                .map(EvaluationNormalizer::normalizeDocId)
-                .collect(Collectors.toSet());
-
-        long relevantRetrieved = countRelevantRetrieved(retrievedDocs, normalizedRelevant);
+        long relevantRetrieved = EvaluationNormalizer.countRelevantRetrieved(retrievedDocs, relevantDocs);
         return (double) relevantRetrieved / retrievedDocs.size();
     }
 
@@ -64,15 +60,7 @@ public class EvaluationService {
         Set<String> normalizedRelevant = relevantDocs.stream()
                 .map(EvaluationNormalizer::normalizeDocId)
                 .collect(Collectors.toSet());
-
-        long relevantRetrieved = countRelevantRetrieved(retrievedDocs, normalizedRelevant);
+        long relevantRetrieved = EvaluationNormalizer.countRelevantRetrieved(retrievedDocs, relevantDocs);
         return (double) relevantRetrieved / normalizedRelevant.size();
-    }
-
-    private long countRelevantRetrieved(Set<String> retrievedDocs, Set<String> relevantDocs) {
-        return retrievedDocs.stream()
-                .filter(retrieved -> relevantDocs.stream()
-                        .anyMatch(relevant -> EvaluationNormalizer.documentIdsMatch(retrieved, relevant)))
-                .count();
     }
 }
