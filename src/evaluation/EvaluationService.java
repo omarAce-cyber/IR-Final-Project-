@@ -50,7 +50,7 @@ public class EvaluationService {
      * @return recall in [0.0, 1.0]; returns 0.0 when the relevant set is empty
      */
     public double recall(List<SearchResult> results, Set<String> relevantDocs) {
-        if (relevantDocs == null || relevantDocs.isEmpty()) {
+        if (results == null || relevantDocs == null || relevantDocs.isEmpty()) {
             return 0.0;
         }
         Set<String> retrievedDocs = results.stream()
@@ -60,7 +60,7 @@ public class EvaluationService {
         Set<String> normalizedRelevant = relevantDocs.stream()
                 .map(EvaluationNormalizer::normalizeDocId)
                 .collect(Collectors.toSet());
-        long relevantRetrieved = EvaluationNormalizer.countRelevantRetrieved(retrievedDocs, relevantDocs);
+        long relevantRetrieved = EvaluationNormalizer.countRelevantRetrieved(retrievedDocs, normalizedRelevant);
         return (double) relevantRetrieved / normalizedRelevant.size();
     }
 }
