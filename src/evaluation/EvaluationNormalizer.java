@@ -1,6 +1,7 @@
 package evaluation;
 
 import java.util.LinkedHashSet;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -58,7 +59,7 @@ final class EvaluationNormalizer {
                 .collect(Collectors.toCollection(LinkedHashSet::new));
 
         long matches = 0L;
-        java.util.Iterator<String> relevantIterator = remainingRelevant.iterator();
+        Iterator<String> relevantIterator = remainingRelevant.iterator();
         while (relevantIterator.hasNext()) {
             String relevant = relevantIterator.next();
             if (unmatchedRetrieved.remove(relevant)) {
@@ -73,7 +74,7 @@ final class EvaluationNormalizer {
             }
             String relevantFileName = fileName(relevant);
 
-            java.util.Iterator<String> retrievedIterator = unmatchedRetrieved.iterator();
+            Iterator<String> retrievedIterator = unmatchedRetrieved.iterator();
             while (retrievedIterator.hasNext()) {
                 String retrieved = retrievedIterator.next();
                 if (isFallbackMatch(relevant, retrieved, relevantFileName)) {
