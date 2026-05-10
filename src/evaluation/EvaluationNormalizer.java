@@ -43,29 +43,23 @@ final class EvaluationNormalizer {
     /**
      * Counts how many retrieved documents are relevant.
      *
-     * <p>Exact normalized ID matching is used first.
+     * <p>Callers must pass normalized document IDs.
+     * Exact normalized ID matching is used first.
      * If one side is unqualified (filename only), fallback filename matching is
      * allowed to tolerate ground-truth entries that omit the language/path prefix.</p>
      */
     static long countRelevantRetrieved(Set<String> retrievedDocs, Set<String> relevantDocs) {
-        Set<String> normalizedRetrieved = retrievedDocs.stream()
-                .map(EvaluationNormalizer::normalizeDocId)
-                .collect(Collectors.toSet());
-        Set<String> normalizedRelevant = relevantDocs.stream()
-                .map(EvaluationNormalizer::normalizeDocId)
-                .collect(Collectors.toSet());
-
-        Set<String> retrievedFileNames = normalizedRetrieved.stream()
+        Set<String> retrievedFileNames = retrievedDocs.stream()
                 .map(EvaluationNormalizer::fileName)
                 .collect(Collectors.toSet());
-        Set<String> unqualifiedRetrievedFileNames = normalizedRetrieved.stream()
+        Set<String> unqualifiedRetrievedFileNames = retrievedDocs.stream()
                 .filter(id -> !id.contains("/"))
                 .map(EvaluationNormalizer::fileName)
                 .collect(Collectors.toSet());
 
         long matches = 0L;
-        for (String relevant : normalizedRelevant) {
-            if (normalizedRetrieved.contains(relevant)) {
+        for (String relevant : relevantDocs) {
+            if (retrievedDocs.contains(relevant)) {
                 matches++;
                 continue;
             }
