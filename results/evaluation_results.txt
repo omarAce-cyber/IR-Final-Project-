@@ -1,33 +1,33 @@
 Query: information retrieval
 Precision: 1.0000
-Recall: 1.0000
-Execution Time (ms): 2.693
+Recall: 0.5000
+Execution Time (ms): 2.440
 
 Query: الذكاء الاصطناعي
 Precision: 1.0000
-Recall: 1.0000
-Execution Time (ms): 0.261
+Recall: 0.5000
+Execution Time (ms): 0.285
 
 Query: استرجاع المعلومات
 Precision: 1.0000
-Recall: 1.0000
-Execution Time (ms): 0.194
+Recall: 0.5000
+Execution Time (ms): 0.228
 
 Query: employment
 Precision: 1.0000
-Recall: 1.0000
-Execution Time (ms): 0.138
+Recall: 0.5000
+Execution Time (ms): 0.178
 
 Query: machine learning
 Precision: 1.0000
-Recall: 1.0000
-Execution Time (ms): 0.173
+Recall: 0.5000
+Execution Time (ms): 0.237
 
 Query: فرص العمل
 Precision: 1.0000
-Recall: 1.0000
-Execution Time (ms): 0.164
+Recall: 0.5000
+Execution Time (ms): 0.174
 
 Average Precision: 1.0000
-Average Recall: 1.0000
-Average Execution Time (ms): 0.604
+Average Recall: 0.5000
+Average Execution Time (ms): 0.590
