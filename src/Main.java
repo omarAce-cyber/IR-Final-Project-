@@ -116,10 +116,13 @@ public class Main {
 
     private static GroundTruth buildGroundTruth() {
         GroundTruth gt = new GroundTruth();
-        gt.addRelevantDocs("machine learning",       Set.of("english/doc1.txt"));
-        gt.addRelevantDocs("information retrieval",  Set.of("english/doc2.txt", "arabic/doc2.txt"));
-        gt.addRelevantDocs("الذكاء الاصطناعي",       Set.of("arabic/doc1.txt"));
-        gt.addRelevantDocs("employment",             Set.of("english/doc3.txt"));
+        gt.addRelevantDocs("machine learning", Set.of("english/doc1.txt"));
+        gt.addRelevantDocs("information retrieval", Set.of("english/doc2.txt"));
+        gt.addRelevantDocs("employment", Set.of("english/doc3.txt"));
+
+        gt.addRelevantDocs("الذكاء الاصطناعي", Set.of("arabic/doc1.txt"));
+        gt.addRelevantDocs("استرجاع المعلومات", Set.of("arabic/doc2.txt"));
+        gt.addRelevantDocs("فرص العمل", Set.of("arabic/doc3.txt"));
         return gt;
     }
 }

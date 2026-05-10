@@ -1,5 +1,7 @@
 package evaluation;
 
+import java.util.LinkedHashSet;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -49,31 +51,54 @@ final class EvaluationNormalizer {
      * allowed to tolerate ground-truth entries that omit the language/path prefix.</p>
      */
     static long countRelevantRetrieved(Set<String> retrievedDocs, Set<String> relevantDocs) {
-        Set<String> retrievedFileNames = retrievedDocs.stream()
-                .map(EvaluationNormalizer::fileName)
-                .collect(Collectors.toSet());
-        Set<String> unqualifiedRetrievedFileNames = retrievedDocs.stream()
-                .filter(id -> !id.contains("/"))
-                .map(EvaluationNormalizer::fileName)
-                .collect(Collectors.toSet());
+        Set<String> unmatchedRetrieved = retrievedDocs.stream()
+                .filter(id -> id != null && !id.isBlank())
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+        Set<String> remainingRelevant = relevantDocs.stream()
+                .filter(id -> id != null && !id.isBlank())
+                .collect(Collectors.toCollection(LinkedHashSet::new));
 
         long matches = 0L;
-        for (String relevant : relevantDocs) {
-            if (retrievedDocs.contains(relevant)) {
-                matches++;
-                continue;
-            }
-
-            String relevantFileName = fileName(relevant);
-            if (!relevant.contains("/")) {
-                if (retrievedFileNames.contains(relevantFileName)) {
-                    matches++;
-                }
-            } else if (unqualifiedRetrievedFileNames.contains(relevantFileName)) {
+        Iterator<String> relevantIterator = remainingRelevant.iterator();
+        while (relevantIterator.hasNext()) {
+            String relevant = relevantIterator.next();
+            if (unmatchedRetrieved.remove(relevant)) {
+                relevantIterator.remove();
                 matches++;
             }
         }
+
+        for (String relevant : remainingRelevant) {
+            if (unmatchedRetrieved.isEmpty()) {
+                break;
+            }
+            String relevantFileName = fileName(relevant);
+
+            Iterator<String> retrievedIterator = unmatchedRetrieved.iterator();
+            while (retrievedIterator.hasNext()) {
+                String retrieved = retrievedIterator.next();
+                if (isFallbackMatch(relevant, retrieved, relevantFileName)) {
+                    retrievedIterator.remove();
+                    matches++;
+                    break;
+                }
+            }
+        }
         return matches;
+    }
+
+    private static boolean isFallbackMatch(String relevant, String retrieved, String relevantFileName) {
+        if (retrieved == null || retrieved.isBlank()) {
+            return false;
+        }
+        String retrievedFileName = fileName(retrieved);
+        if (!relevantFileName.equals(retrievedFileName)) {
+            return false;
+        }
+
+        boolean relevantQualified = relevant.contains("/");
+        boolean retrievedQualified = retrieved.contains("/");
+        return relevantQualified != retrievedQualified;
     }
 
     private static String fileName(String docId) {
