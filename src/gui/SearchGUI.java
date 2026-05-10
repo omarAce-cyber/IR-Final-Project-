@@ -104,11 +104,16 @@ public class SearchGUI {
             }
 
             // Evaluation metrics
-            Set<String> relevantDocs = groundTruth.getRelevantDocs(query);
-            double p = evaluationService.precision(response.getResults(), relevantDocs);
-            double r = evaluationService.recall(response.getResults(), relevantDocs);
-            precisionLabel.setText(String.format("Precision: %.4f", p));
-            recallLabel.setText(String.format("Recall:    %.4f", r));
+            if (groundTruth.hasJudgments(query)) {
+                Set<String> relevantDocs = groundTruth.getRelevantDocs(query);
+                double p = evaluationService.precision(response.getResults(), relevantDocs);
+                double r = evaluationService.recall(response.getResults(), relevantDocs);
+                precisionLabel.setText(String.format("Precision: %.4f", p));
+                recallLabel.setText(String.format("Recall:    %.4f", r));
+            } else {
+                precisionLabel.setText("Precision: N/A (no ground truth)");
+                recallLabel.setText("Recall:    N/A (no ground truth)");
+            }
         };
 
         searchButton.addActionListener(e -> runSearch.run());

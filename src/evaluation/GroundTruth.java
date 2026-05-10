@@ -39,6 +39,14 @@ public class GroundTruth {
     }
 
     /**
+     * Returns whether the given query has registered relevance judgments.
+     */
+    public boolean hasJudgments(String query) {
+        String normalizedQuery = EvaluationNormalizer.normalizeQuery(query);
+        return relevanceMap.containsKey(normalizedQuery);
+    }
+
+    /**
      * Returns an unmodifiable view of all registered judgments.
      */
     public Map<String, Set<String>> getAllJudgments() {
