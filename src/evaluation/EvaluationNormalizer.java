@@ -1,5 +1,6 @@
 package evaluation;
 
+import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -51,38 +52,33 @@ final class EvaluationNormalizer {
     static long countRelevantRetrieved(Set<String> retrievedDocs, Set<String> relevantDocs) {
         Set<String> unmatchedRetrieved = retrievedDocs.stream()
                 .filter(id -> id != null && !id.isBlank())
-                .collect(Collectors.toCollection(java.util.LinkedHashSet::new));
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+        Set<String> remainingRelevant = relevantDocs.stream()
+                .filter(id -> id != null && !id.isBlank())
+                .collect(Collectors.toCollection(LinkedHashSet::new));
 
         long matches = 0L;
-        for (String relevant : relevantDocs) {
-            if (relevant == null || relevant.isBlank()) {
-                continue;
-            }
+        for (String relevant : Set.copyOf(remainingRelevant)) {
             if (unmatchedRetrieved.remove(relevant)) {
+                remainingRelevant.remove(relevant);
                 matches++;
             }
         }
 
-        for (String relevant : relevantDocs) {
-            if (relevant == null || relevant.isBlank() || unmatchedRetrieved.isEmpty()) {
+        for (String relevant : remainingRelevant) {
+            if (unmatchedRetrieved.isEmpty()) {
                 continue;
             }
-            if (retrievedDocs.contains(relevant)) {
-                continue;
-            }
-
             String relevantFileName = fileName(relevant);
-            String matchedRetrieved = null;
-            for (String retrieved : unmatchedRetrieved) {
+
+            java.util.Iterator<String> iterator = unmatchedRetrieved.iterator();
+            while (iterator.hasNext()) {
+                String retrieved = iterator.next();
                 if (isFallbackMatch(relevant, retrieved, relevantFileName)) {
-                    matchedRetrieved = retrieved;
+                    iterator.remove();
+                    matches++;
                     break;
                 }
-            }
-
-            if (matchedRetrieved != null) {
-                unmatchedRetrieved.remove(matchedRetrieved);
-                matches++;
             }
         }
         return matches;
