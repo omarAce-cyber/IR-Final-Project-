@@ -58,24 +58,26 @@ final class EvaluationNormalizer {
                 .collect(Collectors.toCollection(LinkedHashSet::new));
 
         long matches = 0L;
-        for (String relevant : Set.copyOf(remainingRelevant)) {
+        java.util.Iterator<String> relevantIterator = remainingRelevant.iterator();
+        while (relevantIterator.hasNext()) {
+            String relevant = relevantIterator.next();
             if (unmatchedRetrieved.remove(relevant)) {
-                remainingRelevant.remove(relevant);
+                relevantIterator.remove();
                 matches++;
             }
         }
 
         for (String relevant : remainingRelevant) {
             if (unmatchedRetrieved.isEmpty()) {
-                continue;
+                break;
             }
             String relevantFileName = fileName(relevant);
 
-            java.util.Iterator<String> iterator = unmatchedRetrieved.iterator();
-            while (iterator.hasNext()) {
-                String retrieved = iterator.next();
+            java.util.Iterator<String> retrievedIterator = unmatchedRetrieved.iterator();
+            while (retrievedIterator.hasNext()) {
+                String retrieved = retrievedIterator.next();
                 if (isFallbackMatch(relevant, retrieved, relevantFileName)) {
-                    iterator.remove();
+                    retrievedIterator.remove();
                     matches++;
                     break;
                 }
