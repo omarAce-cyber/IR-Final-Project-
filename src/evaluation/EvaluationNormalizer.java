@@ -49,31 +49,57 @@ final class EvaluationNormalizer {
      * allowed to tolerate ground-truth entries that omit the language/path prefix.</p>
      */
     static long countRelevantRetrieved(Set<String> retrievedDocs, Set<String> relevantDocs) {
-        Set<String> retrievedFileNames = retrievedDocs.stream()
-                .map(EvaluationNormalizer::fileName)
-                .collect(Collectors.toSet());
-        Set<String> unqualifiedRetrievedFileNames = retrievedDocs.stream()
-                .filter(id -> !id.contains("/"))
-                .map(EvaluationNormalizer::fileName)
-                .collect(Collectors.toSet());
+        Set<String> unmatchedRetrieved = retrievedDocs.stream()
+                .filter(id -> id != null && !id.isBlank())
+                .collect(Collectors.toCollection(java.util.LinkedHashSet::new));
 
         long matches = 0L;
         for (String relevant : relevantDocs) {
-            if (retrievedDocs.contains(relevant)) {
+            if (relevant == null || relevant.isBlank()) {
+                continue;
+            }
+            if (unmatchedRetrieved.remove(relevant)) {
                 matches++;
+            }
+        }
+
+        for (String relevant : relevantDocs) {
+            if (relevant == null || relevant.isBlank() || unmatchedRetrieved.isEmpty()) {
+                continue;
+            }
+            if (retrievedDocs.contains(relevant)) {
                 continue;
             }
 
             String relevantFileName = fileName(relevant);
-            if (!relevant.contains("/")) {
-                if (retrievedFileNames.contains(relevantFileName)) {
-                    matches++;
+            String matchedRetrieved = null;
+            for (String retrieved : unmatchedRetrieved) {
+                if (isFallbackMatch(relevant, retrieved, relevantFileName)) {
+                    matchedRetrieved = retrieved;
+                    break;
                 }
-            } else if (unqualifiedRetrievedFileNames.contains(relevantFileName)) {
+            }
+
+            if (matchedRetrieved != null) {
+                unmatchedRetrieved.remove(matchedRetrieved);
                 matches++;
             }
         }
         return matches;
+    }
+
+    private static boolean isFallbackMatch(String relevant, String retrieved, String relevantFileName) {
+        if (retrieved == null || retrieved.isBlank()) {
+            return false;
+        }
+        String retrievedFileName = fileName(retrieved);
+        if (!relevantFileName.equals(retrievedFileName)) {
+            return false;
+        }
+
+        boolean relevantQualified = relevant.contains("/");
+        boolean retrievedQualified = retrieved.contains("/");
+        return relevantQualified != retrievedQualified;
     }
 
     private static String fileName(String docId) {
